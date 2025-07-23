@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: hotel-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend:/app
+    restart: always
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: hotel-postgres
+    environment:
+      POSTGRES_USER: hotel_user
+      POSTGRES_PASSWORD: hotel_pass
+      POSTGRES_DB: hotel_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: hotel-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+volumes:
+  postgres_data:
