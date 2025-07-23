@@ -3,10 +3,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY api/package*.json ./
+COPY backend/package*.json ./
 RUN npm ci
 
-COPY api/ .
+COPY backend/ .
 RUN npm run build   # builds TypeScript → dist/
 
 # ---------- PRODUCTION STAGE ----------
