@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "test": "vitest",
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2",
+    "dotenv": "^17.2.4",
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.11.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1",
+    "@types/bun": "latest",
+    "@types/node": "^25.2.1",
+    "drizzle-kit": "^0.31.8",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "prettier": "^3.8.1",
+    "tsx": "^4.21.0",
+    "vitest": "^4.0.18"
+  }
+}
