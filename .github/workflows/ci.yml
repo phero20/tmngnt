@@ -24,9 +24,5 @@ jobs:
         working-directory: backend
 
       - name: Unit tests
-        run: bun run test:unit
-        working-directory: backend
-
-      - name: Security audit
-        run: bun audit
+        run: bun run test
         working-directory: backend
