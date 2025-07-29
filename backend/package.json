@@ -25,6 +25,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "globals": "^17.3.0",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "tsx": "^4.21.0",
     "typescript-eslint": "^8.54.0",
@@ -32,5 +33,11 @@
   },
   "resolutions": {
     "esbuild": "^0.25.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }
