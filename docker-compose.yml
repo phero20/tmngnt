@@ -2,10 +2,10 @@ services:
   backend:
     build:
       context: .
-      dockerfile: docker/backend.Dockerfile
+      dockerfile: infra/docker/backend.Dockerfile
     container_name: hotel-backend
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     env_file:
       - ./backend/.env
     depends_on:
@@ -20,4 +20,16 @@ services:
     container_name: hotel-redis
     ports:
       - "6379:6379"
+    restart: always
+  nginx:
+    build:
+      context: .
+      dockerfile: infra/docker/nginx.Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - BACKEND_URL=http://backend:3000
+      - PORT=80
+    depends_on:
+      - backend
     restart: always
