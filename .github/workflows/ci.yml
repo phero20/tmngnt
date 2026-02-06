@@ -30,3 +30,7 @@ jobs:
       - name: Security audit
         run: bun audit
         working-directory: backend
+
+      - name: Security audit
+        run: bun audit
+        working-directory: backend
