@@ -29,5 +29,8 @@
     "tsx": "^4.21.0",
     "typescript-eslint": "^8.54.0",
     "vitest": "^4.0.18"
+  },
+  "resolutions": {
+    "esbuild": "^0.25.0"
   }
 }
