@@ -15,4 +15,4 @@ COPY backend/ .
 EXPOSE 3000
 
 # Start the application
-CMD ["bun", "run", "dev"]
+CMD ["bun", "run", "start"]
