@@ -3,11 +3,14 @@ services:
     build:
       context: .
       dockerfile: infra/docker/backend.Dockerfile
+    ports:
+      - "3000:3000"
     container_name: hotel-backend
+    command: bun run dev
     env_file:
       - ./backend/.env
     environment:
-      - BETTER_AUTH_BASE_URL=http://localhost
+      - BETTER_AUTH_BASE_URL=http://localhost:3000
       - BETTER_AUTH_SECRET=hotelmanagementsystem012345678911121314151617181920 # Replace with a long random string in production
     depends_on:
       - redis
