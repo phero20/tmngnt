@@ -31,6 +31,6 @@ jobs:
         run: bun audit
         working-directory: backend
 
-      - name: Security audit
-        run: bun audit
+      - name: Integration tests
+        run: bun run test:integration
         working-directory: backend
