@@ -1,9 +1,12 @@
 import { defineConfig } from 'vitest/config';
+import { config } from 'dotenv';
+
+config({ path: '.env' });
 
 export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
-    include: ['tests/unit/**/*.test.ts'],
+    include: ['src/**/*.test.ts'],
   },
 });

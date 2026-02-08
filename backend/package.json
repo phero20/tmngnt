@@ -6,13 +6,16 @@
     "dev": "bun run --hot src/index.ts",
     "test": "vitest",
     "test:unit": "vitest",
+    "test:integration": "vitest run src/tests",
     "test:e2e": "playwright test",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@hono/zod-openapi": "^1.2.1",
     "@hono/zod-validator": "^0.7.6",
     "@neondatabase/serverless": "^1.0.2",
+    "@scalar/hono-api-reference": "^0.9.40",
     "better-auth": "^1.4.18",
     "dotenv": "^17.2.4",
     "drizzle-orm": "^0.45.1",
