@@ -35,5 +35,9 @@ export const auth = betterAuth({
   trustedOrigins: envConfig.get('BETTER_AUTH_TRUSTED_ORIGINS')
     ? envConfig.get('BETTER_AUTH_TRUSTED_ORIGINS').split(',')
     : [],
-  plugins: [openAPI()],
+  plugins: [
+    openAPI({
+      path: '/openapi',
+    }),
+  ],
 });
