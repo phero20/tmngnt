@@ -1,4 +1,8 @@
 import { z } from '@hono/zod-openapi';
+import {
+  ApiResponseSchema,
+  ErrorResponseSchema,
+} from '../utils/response/response.schema';
 
 export const UserSchema = z.object({
   id: z.string().openapi({ example: 'user_123' }),
@@ -21,15 +25,6 @@ export const UpdateUserSchema = z.object({
     .openapi({ example: 'https://example.com/new-avatar.jpg' }),
 });
 
-export const ErrorSchema = z.object({
-  success: z.boolean().openapi({ example: false }),
-  message: z.string().openapi({ example: 'Error occurred' }),
-  data: z.null().openapi({ example: null }),
-});
-
-export const SuccessSchema = (schema: z.ZodType) =>
-  z.object({
-    success: z.boolean().openapi({ example: true }),
-    message: z.string().openapi({ example: 'Success' }),
-    data: schema,
-  });
+// Re-export standard schemas for consistency
+export const ErrorSchema = ErrorResponseSchema;
+export const SuccessSchema = ApiResponseSchema;
