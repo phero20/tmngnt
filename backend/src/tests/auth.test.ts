@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { app } from '../index';
+import app from '../app';
 
 describe('Authentication Integration Tests', () => {
   const testUser = {
