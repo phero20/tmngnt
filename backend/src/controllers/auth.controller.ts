@@ -1,8 +1,9 @@
 import { Context } from 'hono';
 import { auth } from '../lib/auth';
-import { ok, json } from '../utils/response/api-response';
+import { ok } from '../utils/response/api-response';
 import { AppBindings } from '../types/hono.types';
 import { AuthService } from '../services/auth.service';
+import { NotFoundError } from '../utils/errors/http-error';
 
 export class AuthController {
   private authService: AuthService;
@@ -26,7 +27,7 @@ export class AuthController {
     const body = await c.req.json();
 
     if (!user) {
-      return json(c, null, 'User not found', 404);
+      throw new NotFoundError('User not found');
     }
 
     const { name, image } = body;
@@ -43,7 +44,7 @@ export class AuthController {
   public deleteMe = async (c: Context<AppBindings>) => {
     const user = c.get('user');
     if (!user) {
-      return json(c, null, 'User not found', 404);
+      throw new NotFoundError('User not found');
     }
     await this.authService.deleteUser(user.id);
     return ok(c, user, 'User deleted successfully');
