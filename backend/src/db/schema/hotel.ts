@@ -54,6 +54,7 @@ export const hotel = pgTable(
       .defaultNow()
       .notNull()
       .$onUpdate(() => new Date()),
+    deletedAt: timestamp('deletedAt'),
   },
   (table) => {
     return {
@@ -92,6 +93,7 @@ export const room = pgTable(
       .defaultNow()
       .notNull()
       .$onUpdate(() => new Date()),
+    deletedAt: timestamp('deletedAt'),
   },
   (table) => {
     return {
