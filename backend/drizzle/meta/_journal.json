@@ -15,6 +15,13 @@
       "when": 1770556737116,
       "tag": "0001_icy_maginty",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770621695095,
+      "tag": "0002_eminent_azazel",
+      "breakpoints": true
     }
   ]
 }
