@@ -11,6 +11,7 @@ const env = {
     process.env.BETTER_AUTH_SECRET || 'dev-secret-do-not-use-in-prod',
   BETTER_AUTH_TRUSTED_ORIGINS:
     process.env.BETTER_AUTH_TRUSTED_ORIGINS || 'http://localhost:3000',
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
 };
 
 export const envConfig = {
