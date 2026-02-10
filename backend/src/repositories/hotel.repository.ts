@@ -148,4 +148,13 @@ export class HotelRepository {
     }));
     await db.insert(hotelAmenity).values(values);
   }
+  async findByOwnerId(ownerId: string) {
+    return await db.query.hotel.findMany({
+      where: and(eq(hotel.ownerId, ownerId), sql`${hotel.deletedAt} IS NULL`),
+      columns: {
+        id: true,
+        name: true,
+      },
+    });
+  }
 }
