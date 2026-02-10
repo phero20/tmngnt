@@ -1,44 +1,45 @@
 import { db } from '../db';
-import { booking } from '../db/schema';
-import { eq, and, ne, lt, gt, desc } from 'drizzle-orm';
+import { booking, hotel } from '../db/schema';
+import { eq, and, ne, lt, gt, desc, sql } from 'drizzle-orm';
+
+// Helper type for Transaction or DB instance
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DbOrTx = any;
 
 export class BookingRepository {
   /**
    * Create a new booking
+   * Supports external transaction
    */
-  async create(data: typeof booking.$inferInsert) {
-    const [newBooking] = await db.insert(booking).values(data).returning();
+  async create(data: typeof booking.$inferInsert, tx: DbOrTx = db) {
+    const [newBooking] = await tx.insert(booking).values(data).returning();
     return newBooking;
   }
 
   /**
-   * Check if a room is available for the given date range
-   * Returns true if available, false if overlapping booking exists
+   * Count overlapping bookings for a room in a given date range.
+   * Used for checking against room quantity.
    */
-  async checkAvailability(
+  async countOverlapping(
     roomId: string,
-    checkIn: string, // YYYY-MM-DD
-    checkOut: string // YYYY-MM-DD
-  ): Promise<boolean> {
-    // Overlap condition: (StartA < EndB) && (EndA > StartB)
-    // We search for ANY booking that overlaps with the requested range
-    // AND is not cancelled
-    const overlappingBookings = await db
-      .select({ id: booking.id })
+    checkIn: string,
+    checkOut: string,
+    tx: DbOrTx = db
+  ): Promise<number> {
+    const result = await tx
+      .select({ count: sql<number>`cast(count(*) as int)` })
       .from(booking)
       .where(
         and(
           eq(booking.roomId, roomId),
           ne(booking.status, 'CANCELLED'),
-          // Existing Start < Request End
+          // Overlap Condition: (StartA < EndB) && (EndA > StartB)
           lt(booking.checkIn, checkOut),
-          // Existing End > Request Start
           gt(booking.checkOut, checkIn)
         )
-      )
-      .limit(1);
+      );
 
-    return overlappingBookings.length === 0;
+    return result[0].count;
   }
 
   /**
@@ -60,11 +61,19 @@ export class BookingRepository {
   }
 
   /**
-   * Find bookings by User ID (for guests)
+   * Find bookings by User ID (for guests) with Pagination
    */
-  async findByUserId(userId: string) {
+  async findByUserId(
+    userId: string,
+    options?: { page?: number; limit?: number }
+  ) {
+    const limit = options?.limit || 10;
+    const offset = options?.page ? (options.page - 1) * limit : 0;
+
     return await db.query.booking.findMany({
       where: eq(booking.userId, userId),
+      limit,
+      offset,
       with: {
         hotel: {
           columns: {
@@ -87,11 +96,19 @@ export class BookingRepository {
   }
 
   /**
-   * Find bookings by Hotel ID (for hotel owners)
+   * Find bookings by Hotel ID (for hotel owners) with Pagination
    */
-  async findByHotelId(hotelId: string) {
+  async findByHotelId(
+    hotelId: string,
+    options?: { page?: number; limit?: number }
+  ) {
+    const limit = options?.limit || 10;
+    const offset = options?.page ? (options.page - 1) * limit : 0;
+
     return await db.query.booking.findMany({
       where: eq(booking.hotelId, hotelId),
+      limit,
+      offset,
       with: {
         user: {
           columns: {
@@ -114,8 +131,9 @@ export class BookingRepository {
    */
   async updateStatus(
     id: string,
-    status: 'CONFIRMED' | 'CANCELLED' | 'COMPLETED',
-    paymentStatus?: 'PAID' | 'REFUNDED' | 'PENDING' | 'FAILED'
+    status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED',
+    paymentStatus?: 'PAID' | 'REFUNDED' | 'PENDING' | 'FAILED',
+    tx: DbOrTx = db
   ) {
     const updateData: Partial<typeof booking.$inferInsert> = {
       status,
@@ -125,12 +143,62 @@ export class BookingRepository {
       updateData.paymentStatus = paymentStatus;
     }
 
-    const [updatedBooking] = await db
+    const [updatedBooking] = await tx
       .update(booking)
       .set(updateData)
       .where(eq(booking.id, id))
       .returning();
 
     return updatedBooking;
+  }
+
+  async updateBookingStatus(
+    id: string,
+    status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
+  ) {
+    const [updatedBooking] = await db
+      .update(booking)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(booking.id, id))
+      .returning();
+    return updatedBooking;
+  }
+
+  async updatePaymentStatus(
+    id: string,
+    paymentStatus: 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED'
+  ) {
+    const [updatedBooking] = await db
+      .update(booking)
+      .set({ paymentStatus, updatedAt: new Date() })
+      .where(eq(booking.id, id))
+      .returning();
+    return updatedBooking;
+  }
+
+  /**
+   * Find all bookings for hotels owned by a specific user (Owner)
+   * Supports Pagination
+   */
+  async findByOwnerId(
+    ownerId: string,
+    options?: { page?: number; limit?: number }
+  ) {
+    const limit = options?.limit || 10;
+    const offset = options?.page ? (options.page - 1) * limit : 0;
+
+    const result = await db
+      .select()
+      .from(booking)
+      .innerJoin(hotel, eq(booking.hotelId, hotel.id))
+      .where(eq(hotel.ownerId, ownerId))
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(booking.createdAt));
+
+    return result.map((row) => ({
+      ...row.booking,
+      hotel: row.hotel,
+    }));
   }
 }
