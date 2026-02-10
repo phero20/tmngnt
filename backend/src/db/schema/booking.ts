@@ -7,6 +7,7 @@ import {
   date,
   pgEnum,
   index,
+  integer,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { user } from './auth';
@@ -61,6 +62,10 @@ export const booking = pgTable(
     paymentStatus: paymentStatusEnum('paymentStatus')
       .default('PENDING')
       .notNull(),
+
+    // Guest Details
+    adults: integer('adults').default(1).notNull(),
+    children: integer('children').default(0).notNull(),
 
     // Metadata
     guestName: text('guestName'), // Optional: if booking for someone else
