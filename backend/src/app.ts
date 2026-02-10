@@ -3,11 +3,26 @@ import { apiReference } from '@scalar/hono-api-reference';
 import { globalErrorHandler } from './utils/errors/error-handler';
 import routes from './routes';
 import { logger } from 'hono/logger';
-
+import { cors } from 'hono/cors';
+import { secureHeaders } from 'hono/secure-headers';
+import { envConfig } from './config/env.config';
 const app = new OpenAPIHono();
 
 // Middleware
 app.use('*', logger());
+app.use('*', secureHeaders());
+app.use(
+  '*',
+  cors({
+    origin:
+      (envConfig.get('FRONTEND_URL') as string) || 'http://localhost:5173',
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposeHeaders: ['Content-Length', 'X-Requested-With'],
+    maxAge: 600,
+    credentials: true,
+  })
+);
 app.onError(globalErrorHandler);
 
 // Health Check
