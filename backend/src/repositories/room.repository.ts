@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { room, hotelImage, roomAmenity, roomInventory } from '../db/schema';
+import { room, hotelImage, roomAmenity } from '../db/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 
 export class RoomRepository {
@@ -37,8 +37,9 @@ export class RoomRepository {
     });
   }
 
-  async findById(id: string) {
-    return await db.query.room.findFirst({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async findById(id: string, tx: any = db) {
+    return await tx.query.room.findFirst({
       where: and(eq(room.id, id), sql`${room.deletedAt} IS NULL`),
       with: {
         images: true,
@@ -47,7 +48,6 @@ export class RoomRepository {
             amenity: true,
           },
         },
-        inventory: true,
       },
     });
   }
@@ -85,24 +85,5 @@ export class RoomRepository {
       .where(eq(room.id, id))
       .returning();
     return deletedRoom;
-  }
-
-  // --- Inventory Management ---
-  async updateInventory(roomId: string, date: string, totalRooms: number) {
-    // Upsert logic for inventory
-    // If PostgreSQL, use .onConflictDoUpdate()
-
-    return await db
-      .insert(roomInventory)
-      .values({
-        roomId,
-        date,
-        totalRooms,
-      })
-      .onConflictDoUpdate({
-        target: [roomInventory.roomId, roomInventory.date],
-        set: { totalRooms },
-      })
-      .returning();
   }
 }
