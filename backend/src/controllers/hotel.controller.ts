@@ -7,7 +7,7 @@ import {
   UpdateRoomSchema,
 } from '../schemas/hotel.schema';
 import { ok, created } from '../utils/response/api-response';
-import { UnauthorizedError } from '../utils/errors/http-error';
+import { UnauthorizedError, ForbiddenError } from '../utils/errors/http-error';
 import { AppBindings } from '../types/hono.types';
 
 /**
@@ -31,6 +31,11 @@ export class HotelController {
     const user = c.get('user');
     if (!user) {
       throw new UnauthorizedError();
+    }
+
+    // RBAC: Only HOST or ADMIN can create hotels
+    if (user.role !== 'HOST' && user.role !== 'ADMIN') {
+      throw new ForbiddenError('Only hosts can list hotels');
     }
 
     const body = await c.req.json();
