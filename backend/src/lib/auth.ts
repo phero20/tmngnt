@@ -24,6 +24,15 @@ export const auth = betterAuth({
         type: 'string',
         required: false,
       },
+      role: {
+        type: 'string',
+        required: false,
+        defaultValue: 'GUEST',
+      },
+      banned: {
+        type: 'boolean',
+        required: false,
+      },
     },
     changeEmail: {
       enabled: true,
