@@ -9,7 +9,6 @@ import {
   primaryKey,
   uniqueIndex,
   index,
-  date,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { user } from './auth';
@@ -159,30 +158,6 @@ export const hotelImage = pgTable(
 );
 
 // --------------------------------------------------------------------------
-// 📅 Room Inventory (Availability Tracking)
-// --------------------------------------------------------------------------
-export const roomInventory = pgTable(
-  'room_inventory',
-  {
-    id: uuid('id').defaultRandom().primaryKey(),
-    roomId: uuid('roomId')
-      .notNull()
-      .references(() => room.id, { onDelete: 'cascade' }),
-    date: date('date').notNull(), // YYYY-MM-DD
-    totalRooms: integer('totalRooms').notNull(), // Snapshot of total capacity
-    bookedCount: integer('bookedCount').default(0).notNull(),
-  },
-  (table) => {
-    return {
-      roomDateIdx: uniqueIndex('room_inventory_date_idx').on(
-        table.roomId,
-        table.date
-      ),
-    };
-  }
-);
-
-// --------------------------------------------------------------------------
 // 🔗 Room <-> Amenity (Granular Features)
 // --------------------------------------------------------------------------
 export const roomAmenity = pgTable(
@@ -222,7 +197,7 @@ export const roomRelations = relations(room, ({ one, many }) => ({
     references: [hotel.id],
   }),
   images: many(hotelImage),
-  inventory: many(roomInventory),
+
   amenities: many(roomAmenity),
 }));
 
@@ -249,13 +224,6 @@ export const hotelImageRelations = relations(hotelImage, ({ one }) => ({
   }),
   room: one(room, {
     fields: [hotelImage.roomId],
-    references: [room.id],
-  }),
-}));
-
-export const roomInventoryRelations = relations(roomInventory, ({ one }) => ({
-  room: one(room, {
-    fields: [roomInventory.roomId],
     references: [room.id],
   }),
 }));
