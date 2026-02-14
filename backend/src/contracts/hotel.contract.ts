@@ -110,6 +110,7 @@ export const updateHotelRoute = createRoute({
 });
 
 // Delete Hotel (Owner Only)
+// Delete Hotel (Owner Only)
 export const deleteHotelRoute = createRoute({
   method: 'delete',
   path: '/{id}',
@@ -120,6 +121,24 @@ export const deleteHotelRoute = createRoute({
   },
   responses: {
     200: { description: 'Hotel deleted (soft delete)' },
+    401: { description: 'Unauthorized' },
+    403: { description: 'Forbidden (Not Owner)' },
+    404: { description: 'Hotel not found' },
+  },
+});
+
+// Restore Hotel (Owner Only)
+// Use POST /:id/restore
+export const restoreHotelRoute = createRoute({
+  method: 'post',
+  path: '/{id}/restore',
+  tags: ['Hotels'],
+  summary: 'Restore Archived Hotel',
+  request: {
+    params: z.object({ id: z.string().uuid() }),
+  },
+  responses: {
+    200: { description: 'Hotel restored' },
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden (Not Owner)' },
     404: { description: 'Hotel not found' },
