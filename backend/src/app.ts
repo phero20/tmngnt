@@ -15,7 +15,7 @@ app.use(
   '*',
   cors({
     origin:
-      (envConfig.get('FRONTEND_URL') as string) || 'http://localhost:5173',
+      (envConfig.get('FRONTEND_URL') as string) || 'http://localhost:3000',
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowHeaders: ['Content-Type', 'Authorization', 'Cookie'],
     exposeHeaders: ['Content-Length', 'X-Requested-With'],
