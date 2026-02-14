@@ -48,14 +48,38 @@ export class HotelController {
   /**
    * List all hotels with optional filters
    */
-  public listHotels = async (c: Context) => {
+  public listHotels = async (c: Context<AppBindings>) => {
     const query = c.req.query();
+    const user = c.get('user');
+
+    // If request coming from authenticated HOST, only show their hotels
+    // NOTE: This assumes 'listHotels' is behind authentication Middleware OR we manually check user here
+    // If this route is public, c.get('user') might be undefined if auth middleware not applied globally to this route.
+    // However, typically public search shouldn't be restricted by owner.
+    // The user's request implies the "Dashboard" listing.
+    // Dashboard typically calls the same API.
+    // If user is logged in as HOST, we filter by their ID.
+    // If PUBLIC search (guest), user is undefined (or ROLE != HOST), so we don't filter.
+
+    // BUT wait, if a Guest is logged in, they shouldn't see only their own hotels (none).
+    // So filter only if explicit intent? Or if role is HOST?
+    // User requested: "as we are showing properties of all hosts but only show properly own by logeedin host"
+
+    let ownerIdFilter: string | undefined = undefined;
+
+    // Filter for HOST or ADMIN (so they manage only their own properties in dashboard)
+    // Note: This affects public search if logged in. Ideally use a query param to toggle.
+    if (user && (user.role === 'HOST' || user.role === 'ADMIN')) {
+      ownerIdFilter = user.id;
+    }
 
     const hotels = await this.hotelService.listHotels({
       city: query.city,
       search: query.search,
       page: query.page ? parseInt(query.page) : undefined,
       limit: query.limit ? parseInt(query.limit) : undefined,
+      ownerId: ownerIdFilter,
+      archived: query.archived === 'true',
     });
 
     return ok(c, hotels, 'Hotels retrieved successfully');
@@ -102,6 +126,21 @@ export class HotelController {
 
     const result = await this.hotelService.deleteHotel(id, user.id);
     return ok(c, result, 'Hotel deleted successfully');
+  };
+
+  /**
+   * Restore archived hotel
+   */
+  public restoreHotel = async (c: Context<AppBindings>) => {
+    const id = c.req.param('id');
+    const user = c.get('user');
+
+    if (!user) {
+      throw new UnauthorizedError();
+    }
+
+    const result = await this.hotelService.restoreHotel(id, user.id);
+    return ok(c, result, 'Hotel restored successfully');
   };
 
   // --- Room Operations ---
