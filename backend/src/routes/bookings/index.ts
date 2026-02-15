@@ -5,10 +5,14 @@ import { HotelRepository } from '../../repositories/hotel.repository';
 import { BookingService } from '../../services/booking.service';
 import { BookingController } from '../../controllers/booking.controller';
 import { AppBindings } from '../../types/hono.types';
-import { registerBookingRoutes } from './booking.routes';
+import {
+  registerPublicBookingRoutes,
+  registerProtectedBookingRoutes,
+} from './booking.routes';
 import { authMiddleware } from '../../middleware/auth.middleware';
 
 // Dependency Injection - Instantiate dependencies
+// ... (repositories and service instantiation)
 const bookingRepository = new BookingRepository();
 const roomRepository = new RoomRepository();
 const hotelRepository = new HotelRepository();
@@ -25,12 +29,16 @@ const bookingController = new BookingController(bookingService);
 const bookingRoutes = new OpenAPIHono<AppBindings>();
 
 // ============================================================================
-// GLOBAL MIDDLEWARE FOR BOOKING MODULE
+// ROUTES REGISTRATION
 // ============================================================================
-// Force Authentication for ALL Booking routes
+
+// 1. Register Public Routes (No Auth)
+registerPublicBookingRoutes(bookingRoutes, bookingController);
+
+// 2. Global Auth Middleware (For all subsequent routes)
 bookingRoutes.use('/*', authMiddleware);
 
-// Register routes
-registerBookingRoutes(bookingRoutes, bookingController);
+// 3. Register Protected Routes (Auth Required)
+registerProtectedBookingRoutes(bookingRoutes, bookingController);
 
 export default bookingRoutes;
