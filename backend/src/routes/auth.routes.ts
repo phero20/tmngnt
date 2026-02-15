@@ -15,11 +15,11 @@ const authRepository = new AuthRepository();
 const authService = new AuthService(authRepository);
 const authController = new AuthController(authService);
 
-authRoutes.on(['POST', 'GET'], '/api/auth/**', (c) =>
-  authController.handleAuth(c)
-);
+// Better Auth handler - mounted at /auth in the parent /api router
+authRoutes.all('/auth/*', (c) => authController.handleAuth(c));
 
-authRoutes.use('/api/me', authMiddleware);
+// Me routes - mounted at /me in the parent /api router
+authRoutes.use('/me', authMiddleware);
 
 authRoutes.openapi(
   getMeRoute,
