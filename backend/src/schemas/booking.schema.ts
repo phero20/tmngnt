@@ -36,6 +36,36 @@ export const BookingResponseSchema = z
     paymentStatus: z.enum(['PENDING', 'PAID', 'FAILED', 'REFUNDED']),
     createdAt: z.string(),
     updatedAt: z.string(),
+
+    // Optional fields from joins
+    guestName: z.string().nullable().optional(),
+    guestEmail: z.string().nullable().optional(),
+
+    room: z
+      .object({
+        name: z.string(),
+      })
+      .optional()
+      .openapi({ example: { name: 'Deluxe Suite' } }),
+
+    user: z
+      .object({
+        name: z.string(),
+        email: z.string(),
+        image: z.string().nullable().optional(),
+      })
+      .optional()
+      .openapi({ example: { name: 'John Doe', email: 'john@example.com' } }),
+
+    hotel: z
+      .object({
+        name: z.string(),
+        city: z.string().optional(),
+        slug: z.string().optional(),
+        images: z.array(z.object({ url: z.string() })).optional(),
+      })
+      .optional()
+      .openapi({ example: { name: 'Grand Hotel' } }),
   })
   .openapi('BookingResponse');
 
@@ -55,3 +85,9 @@ export type UpdateBookingStatusInput = z.infer<
 export type UpdatePaymentStatusInput = z.infer<
   typeof UpdatePaymentStatusSchema
 >;
+export const RoomAvailabilitySchema = z.object({
+  checkIn: z.string().date(),
+  checkOut: z.string().date(),
+});
+
+export type RoomAvailability = z.infer<typeof RoomAvailabilitySchema>;
