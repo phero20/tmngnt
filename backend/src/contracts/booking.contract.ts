@@ -4,6 +4,7 @@ import {
   BookingResponseSchema,
   UpdateBookingStatusSchema,
   UpdatePaymentStatusSchema,
+  RoomAvailabilitySchema,
 } from '../schemas/booking.schema';
 import { z } from '@hono/zod-openapi';
 
@@ -163,5 +164,29 @@ export const updatePaymentStatusRoute = createRoute({
     401: { description: 'Unauthorized' },
     403: { description: 'Forbidden (Not hotel owner)' },
     404: { description: 'Booking not found' },
+  },
+});
+
+export const getRoomAvailabilityRoute = createRoute({
+  method: 'get',
+  path: '/{roomId}/availability',
+  tags,
+  summary: 'Get room availability',
+  request: {
+    params: z.object({
+      roomId: z.string().uuid(),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'Room availability',
+      content: {
+        'application/json': {
+          schema: z.array(RoomAvailabilitySchema),
+        },
+      },
+    },
+    400: { description: 'Bad Request' },
+    404: { description: 'Room not found' },
   },
 });
