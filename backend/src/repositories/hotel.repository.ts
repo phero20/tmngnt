@@ -122,6 +122,11 @@ export class HotelRepository {
         images: {
           limit: 1, // Preview image
         },
+        rooms: {
+          columns: {
+            price: true,
+          },
+        },
       },
       orderBy: [desc(hotel.createdAt)],
     });
