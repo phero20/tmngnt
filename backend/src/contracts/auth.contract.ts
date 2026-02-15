@@ -8,7 +8,7 @@ import {
 
 export const getMeRoute = createRoute({
   method: 'get',
-  path: '/api/me',
+  path: '/me',
   tags: ['Auth'],
   summary: 'Get Current User Profile',
   responses: {
@@ -25,7 +25,7 @@ export const getMeRoute = createRoute({
 
 export const updateMeRoute = createRoute({
   method: 'patch',
-  path: '/api/me',
+  path: '/me',
   tags: ['Auth'],
   summary: 'Update User Profile',
   request: {
