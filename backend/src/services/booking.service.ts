@@ -232,4 +232,8 @@ export class BookingService {
       paymentStatus
     );
   }
+
+  async getRoomAvailability(roomId: string) {
+    return await this.bookingRepository.findRoomBookings(roomId);
+  }
 }
