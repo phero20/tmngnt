@@ -7,7 +7,7 @@ import bookingRoutes from './bookings';
 
 const app = new OpenAPIHono();
 
-app.route('/', authRoutes);
+app.route('/api', authRoutes);
 app.route('/api/hotels', hotelRoutes);
 app.route('/api/amenities', amenityRoutes);
 app.route('/api/bookings', bookingRoutes);
