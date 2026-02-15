@@ -132,4 +132,10 @@ export class BookingController {
     );
     return ok(c, result, 'Payment status updated successfully');
   };
+
+  getRoomAvailability = async (c: Context<AppBindings>) => {
+    const { roomId } = c.req.param();
+    const result = await this.bookingService.getRoomAvailability(roomId);
+    return ok(c, result, 'Room availability fetched successfully');
+  };
 }

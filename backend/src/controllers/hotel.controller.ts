@@ -90,7 +90,10 @@ export class HotelController {
    */
   public getHotel = async (c: Context) => {
     const id = c.req.param('id');
+    console.log(`[BACKEND] Fetching hotel details for ID: ${id}`);
+    const start = Date.now();
     const hotel = await this.hotelService.getHotelById(id);
+    console.log(`[BACKEND] Found hotel in ${Date.now() - start}ms`);
 
     return ok(c, hotel, 'Hotel retrieved successfully');
   };
