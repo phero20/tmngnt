@@ -8,9 +8,22 @@ import {
   cancelBookingRoute,
   updateBookingStatusRoute,
   updatePaymentStatusRoute,
+  getRoomAvailabilityRoute,
 } from '../../contracts/booking.contract';
 
-export function registerBookingRoutes(
+export function registerPublicBookingRoutes(
+  router: OpenAPIHono<AppBindings>,
+  controller: BookingController
+) {
+  // Get Room Availability (Public/Guest)
+  router.openapi(
+    getRoomAvailabilityRoute,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (c) => controller.getRoomAvailability(c) as any
+  );
+}
+
+export function registerProtectedBookingRoutes(
   router: OpenAPIHono<AppBindings>,
   controller: BookingController
 ) {
