@@ -63,6 +63,8 @@ export class HotelService {
     search?: string;
     page?: number;
     limit?: number;
+    ownerId?: string;
+    archived?: boolean;
   }) {
     const limit = filters.limit || 10;
     const offset = ((filters.page || 1) - 1) * limit;
@@ -72,6 +74,8 @@ export class HotelService {
       search: filters.search,
       limit,
       offset,
+      ownerId: filters.ownerId,
+      archived: filters.archived,
     });
 
     return hotels;
@@ -138,6 +142,27 @@ export class HotelService {
     }
 
     await this.hotelRepository.delete(id);
+    return { success: true };
+  }
+
+  /**
+   * Restore (un-archive) a hotel
+   * @throws {NotFoundError} If hotel doesn't exist
+   * @throws {ForbiddenError} If user doesn't own the hotel
+   */
+  async restoreHotel(id: string, ownerId: string) {
+    // Verify hotel exists (even if archived)
+    const existing = await this.hotelRepository.findById(id, true);
+    if (!existing) {
+      throw new NotFoundError('Hotel not found');
+    }
+
+    // Verify ownership
+    if (existing.ownerId !== ownerId) {
+      throw new ForbiddenError('You do not own this hotel');
+    }
+
+    await this.hotelRepository.restore(id);
     return { success: true };
   }
 

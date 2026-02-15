@@ -48,9 +48,13 @@ export class HotelRepository {
     await db.insert(hotelImage).values(values);
   }
 
-  async findById(id: string) {
+  async findById(id: string, includeArchived = false) {
+    const whereCondition = includeArchived
+      ? eq(hotel.id, id)
+      : and(eq(hotel.id, id), sql`${hotel.deletedAt} IS NULL`);
+
     return await db.query.hotel.findFirst({
-      where: and(eq(hotel.id, id), sql`${hotel.deletedAt} IS NULL`),
+      where: whereCondition,
       with: {
         rooms: true,
         images: true,
@@ -84,6 +88,8 @@ export class HotelRepository {
     search?: string;
     limit?: number;
     offset?: number;
+    ownerId?: string;
+    archived?: boolean;
   }) {
     const limit = filters?.limit || 10;
     const offset = filters?.offset || 0;
@@ -98,8 +104,15 @@ export class HotelRepository {
       whereConditions.push(like(hotel.name, `%${filters.search}%`));
     }
 
-    // Default: Soft Delete check (deletedAt is null)
-    whereConditions.push(sql`${hotel.deletedAt} IS NULL`);
+    if (filters?.ownerId) {
+      whereConditions.push(eq(hotel.ownerId, filters.ownerId));
+    }
+
+    if (filters?.archived) {
+      whereConditions.push(sql`${hotel.deletedAt} IS NOT NULL`);
+    } else {
+      whereConditions.push(sql`${hotel.deletedAt} IS NULL`);
+    }
 
     const hotels = await db.query.hotel.findMany({
       where: whereConditions.length > 0 ? and(...whereConditions) : undefined,
@@ -133,6 +146,15 @@ export class HotelRepository {
       .where(eq(hotel.id, id))
       .returning();
     return deletedHotel;
+  }
+
+  async restore(id: string) {
+    const [restoredHotel] = await db
+      .update(hotel)
+      .set({ deletedAt: null, isActive: true })
+      .where(eq(hotel.id, id))
+      .returning();
+    return restoredHotel;
   }
 
   // --- Amenities ---
