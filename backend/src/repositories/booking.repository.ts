@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { booking, hotel } from '../db/schema';
+import { booking, hotel, room, user } from '../db/schema';
 import { eq, and, ne, lt, gt, desc, sql } from 'drizzle-orm';
 
 // Helper type for Transaction or DB instance
@@ -188,9 +188,20 @@ export class BookingRepository {
     const offset = options?.page ? (options.page - 1) * limit : 0;
 
     const result = await db
-      .select()
+      .select({
+        booking: booking,
+        hotel: hotel,
+        room: room,
+        user: {
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        },
+      })
       .from(booking)
       .innerJoin(hotel, eq(booking.hotelId, hotel.id))
+      .innerJoin(room, eq(booking.roomId, room.id))
+      .innerJoin(user, eq(booking.userId, user.id))
       .where(eq(hotel.ownerId, ownerId))
       .limit(limit)
       .offset(offset)
@@ -199,6 +210,27 @@ export class BookingRepository {
     return result.map((row) => ({
       ...row.booking,
       hotel: row.hotel,
+      room: row.room,
+      user: row.user,
     }));
+  }
+
+  /**
+   * Find future active bookings for a room
+   */
+  async findRoomBookings(roomId: string) {
+    const today = new Date().toISOString().split('T')[0];
+    return await db.query.booking.findMany({
+      where: and(
+        eq(booking.roomId, roomId),
+        ne(booking.status, 'CANCELLED'),
+        // Only return bookings that haven't ended yet
+        gt(booking.checkOut, today)
+      ),
+      columns: {
+        checkIn: true,
+        checkOut: true,
+      },
+    });
   }
 }
