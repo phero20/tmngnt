@@ -41,6 +41,14 @@ export interface Room {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  amenities?: {
+    amenity: {
+      id: string;
+      name: string;
+      icon: string | null;
+    };
+  }[];
+  images?: { id: string; url: string }[];
 }
 
 export interface HotelResponse {
