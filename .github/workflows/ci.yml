@@ -1,36 +1,36 @@
-# name: CI
+name: CI
 
-# on:
-#   push:
-#     branches: [main]
-#   pull_request:
+on:
+  push:
+    branches: [main]
+  pull_request:
 
-# jobs:
-#   quality:
-#     runs-on: ubuntu-latest
+jobs:
+  quality:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-#       - name: Setup Bun
-#         uses: oven-sh/setup-bun@v1
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
 
-#       - name: Install dependencies
-#         run: bun install
-#         working-directory: backend
+      - name: Install dependencies
+        run: bun install
+        working-directory: backend
 
-#       - name: Lint
-#         run: bun run lint
-#         working-directory: backend
+      - name: Lint
+        run: bun run lint
+        working-directory: backend
 
-#       - name: Unit tests
-#         run: bun run test:unit
-#         working-directory: backend
+      - name: Unit tests
+        run: bun run test:unit
+        working-directory: backend
 
-#       - name: Security audit
-#         run: bun audit
-#         working-directory: backend
+      - name: Security audit
+        run: bun audit
+        working-directory: backend
 
-#       - name: Integration tests
-#         run: bun run test:integration
-#         working-directory: backend
+      - name: Integration tests
+        run: bun run test:integration
+        working-directory: backend
