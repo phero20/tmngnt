@@ -42,10 +42,8 @@ export default function EditRoomForm({ hotelId, room }: EditRoomFormProps) {
       capacityChildren: room.capacityChildren,
       quantity: room.quantity,
       sizeSqFt: room.sizeSqFt || undefined,
-      // @ts-ignore - amenities structure mismatch handling needed later
-      amenities: [],
-      // @ts-ignore - images structure mismatch handling needed later
-      images: [],
+      amenities: room.amenities?.map((a) => a.amenity.id) || [],
+      images: room.images?.map((img) => img.url) || [],
     },
   });
 
@@ -255,7 +253,7 @@ export default function EditRoomForm({ hotelId, room }: EditRoomFormProps) {
               >
                 <span className="truncate pr-2">{amenity.name}</span>
                 {currentAmenities.includes(amenity.id) && (
-                  <Check className="w-3.5 h-3.5 flex-shrink-0" />
+                  <Check className="w-3.5 h-3.5 shrink-0" />
                 )}
               </button>
             ))}
