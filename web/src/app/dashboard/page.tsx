@@ -30,7 +30,7 @@ export default async function DashboardRedirectPage() {
       redirect('/dashboard/host');
     } else {
       // Future: redirect('/dashboard/guest')
-      redirect('/'); // For now, send back to home if not a host
+      redirect('/dashboard/guest/bookings');
     }
   } catch (error) {
     console.error('Dashboard Redirect Error:', error);
